@@ -12,5 +12,5 @@
 - [x] Make a menu 
 ***
 ## Sprint 3
-- [] Create the powerpoint slide
+- [x] Create the powerpoint slide
 ***
