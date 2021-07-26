@@ -8,7 +8,7 @@
 - [x] Further flesh out the project road map
 ***
 ## Sprint 2
-- [] Add data authentication to the user input product number
+- [x] Add data authentication to the user input product number
 - [x] Make a menu 
 ***
 ## Sprint 3

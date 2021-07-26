@@ -13,7 +13,18 @@ class BGI:
         self.rPrice = ''
         self.sPrice = ''
         self.stock = ''
-        
+    
+    def isEqual(self, target):
+        if self.name != target.name:
+            return False
+        elif self.rPrice != target.rPrice:
+            return False
+        elif self.sPrice != target.sPrice:
+            return False
+        elif self.stock != target.stock:
+            return False    
+        else:
+            return True
 
 #this function does the actual scraping
 def scrapeData(BGID):
@@ -41,11 +52,12 @@ def scrapeData(BGID):
     stock = tree.find_class('availability')[0].text_content()
     
     BGData = BGI(BGID)
-    BGData.name = name
-    BGData.sPrice = sPrice
-    BGData.rPrice = rPrice
-    BGData.stock = stock
+    BGData.name = name.strip()
+    BGData.sPrice = sPrice.strip()
+    BGData.rPrice = rPrice.strip()
+    BGData.stock = stock.strip()
     return BGData
+
 
 
 BGlist = []
@@ -56,7 +68,6 @@ filesExisting = listdir(filePath)
 for i in range(len(filesExisting)):
     if '.txt' in filesExisting[i]:
         BGlist.append(BGI(filesExisting[i][:-4])) # [:-4 to remove the .txt]
-
 
 menuInput = 0
 while menuInput != 'q':
@@ -80,7 +91,24 @@ while menuInput != 'q':
             elif usrInput == 'q':
                 break
             
-            BGlist.append(BGI(usrInput))
+            # Ensuring that the product page exists
+            url = "https://www.miniaturemarket.com/" + usrInput + ".html"
+            url = url.lower()
+            r = requests.get(url)
+            if 'We are sorry, but the page you are looking for cannot be found.' in r.text:
+                print('Invalid product ID')
+                continue # Takes us back to the top of the while loop
+
+            # Makes sure user doesn't try to track the same game multiple times
+            isTracked = False
+            for ID in BGlist:
+                if ID.BGID == usrInput:
+                    isTracked = True
+                    print("You are already tracking this game")
+                    break
+            if isTracked == False:
+                BGlist.append(BGI(usrInput))
+
     elif menuInput == '2':
         if len(BGlist) < 1:
                 print('No board games currently being tracked\n')
@@ -91,19 +119,20 @@ while menuInput != 'q':
         break
 
     
+    
 # creates files and enters data from previous sessions
 fileList = []
 for i in range(len(BGlist)):
     file = open(filePath + BGlist[i].BGID + '.txt', 'a+')
     fileList.append(file)
 
+    file.seek(0)
     lineNum = file.readlines()
     if len(lineNum) >= 5:
-        BGlist[i].name = lineNum[-6]
-        BGlist[i].rPrice = lineNum[-4]
-        BGlist[i].sPrice = lineNum[-3]
-        BGlist[i].stock = lineNum[-2]
-
+        BGlist[i].name = lineNum[-6].strip()
+        BGlist[i].rPrice = lineNum[-4].strip()
+        BGlist[i].sPrice = lineNum[-3].strip()
+        BGlist[i].stock = lineNum[-2].strip()
 
 
 while True:
@@ -112,12 +141,8 @@ while True:
         currentData = BGlist[i]
         newData = scrapeData(BGlist[i].BGID)
 
-        if currentData != newData:
-            fileList[i].write(newData.name.strip() + '\n' + newData.BGID.strip() + '\n' + newData.rPrice.strip() + '\n' + newData.sPrice.strip() + '\n' + newData.stock.strip() + '\n' + str(datetime.now()))
-
+        if currentData.isEqual(newData) == False:
+            fileList[i].write('\n\n' + newData.name.strip() + '\n' + newData.BGID.strip() + '\n' + newData.rPrice.strip() + '\n' + newData.sPrice.strip() + '\n' + newData.stock.strip() + '\n' + str(datetime.now()))
             BGlist[i] = newData
     
     time.sleep(900) # Wait for 900 seconds (15 minutes)
-    
-
-
