@@ -9,7 +9,7 @@
 ***
 ## Sprint 2
 - [] Add data authentication to the user input product number
-- [] Add a function to view files from the main menu
+- [x] Make a menu 
 ***
 ## Sprint 3
 - [] Create the powerpoint slide

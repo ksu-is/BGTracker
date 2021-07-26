@@ -4,6 +4,7 @@ from os import listdir
 from datetime import datetime
 import time
 
+
 # Class to hold the Board Game Info
 class BGI:
     def __init__(self, BGID = ''):
@@ -47,28 +48,50 @@ def scrapeData(BGID):
     return BGData
 
 
-    
 BGlist = []
 filePath = 'BGTracker/'
 filesExisting = listdir(filePath)
 
+#This for loop adds the tracked games from previous sessions
 for i in range(len(filesExisting)):
     if '.txt' in filesExisting[i]:
         BGlist.append(BGI(filesExisting[i][:-4])) # [:-4 to remove the .txt]
 
-print("Here is a list of currently tracked board games: ")
-for games in BGlist:
-    print (games.BGID)
 
-while True:
-    usrInput = input("To track a new game, enter the product # located below the name, or press q to go on: ")
-    if usrInput[0] == '#':
-        usrInput = usrInput[1:]
-    elif usrInput == 'q':
+menuInput = 0
+while menuInput != 'q':
+    print("\n1: Track new game")
+    print("2: Show currently tracked product IDs")
+    print("Q to begin tracking\n")
+    
+    menuInput = input("Select a menu item: ").lower()
+    if menuInput == '1':
+        print("Here is a list of currently tracked board games: ")
+        if len(BGlist) < 1:
+            print("No board games currently being tracked\n")
+        else:
+            for games in BGlist:
+                print (games.BGID)
+
+        while True:
+            usrInput = input("Enter the product # located below the name, or press q to return to menu: ")
+            if usrInput[0] == '#':
+                usrInput = usrInput[1:]
+            elif usrInput == 'q':
+                break
+            
+            BGlist.append(BGI(usrInput))
+    elif menuInput == '2':
+        if len(BGlist) < 1:
+                print('No board games currently being tracked\n')
+        for IDs in BGlist:
+            print(IDs.BGID)
+        input("Press any button to continue")
+    elif menuInput == 'q':
         break
+
     
-    BGlist.append(BGI(usrInput))
-    
+# creates files and enters data from previous sessions
 fileList = []
 for i in range(len(BGlist)):
     file = open(filePath + BGlist[i].BGID + '.txt', 'a+')
